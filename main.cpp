@@ -75,6 +75,7 @@ void writeFile(int type) {
                           << productList[i].productPrice << endl;
         }
         basicOfStream.close();
+        return;
     }
     if (customerType == type) {
         ofstream basicOfStream(R"(E:\CLionProjects\IT05-BTL\customer.txt)");
@@ -83,6 +84,7 @@ void writeFile(int type) {
                           << customerList[i].phone << endl;
         }
         basicOfStream.close();
+        return;
     }
     if (billType == type) {
         ofstream basicOfStream(R"(E:\CLionProjects\IT05-BTL\bill.txt)");
@@ -508,7 +510,7 @@ void findAllBillByCustomerCode() {
     cin >> customerCode;
     cout << "All Customer have code like '" << customerCode << endl;
     vector<Bill> list;
-    for (auto bill: billList) {
+    for (const auto &bill: billList) {
         if (customerCode == bill.customerCode) {
             list.push_back(bill);
         }
@@ -522,7 +524,7 @@ void findAllBillByBillCode() {
     cin >> billCode;
     cout << "All Bill have code like " << billCode << endl;
     vector<Bill> list;
-    for (auto bill: billList) {
+    for (const auto &bill: billList) {
         if (billCode == bill.billCode) {
             list.push_back(bill);
         }
@@ -730,6 +732,14 @@ void billMenu() {
             }
             case 6: {
                 deleteBillById();
+                break;
+            }
+            case 7: {
+                findAllBillByCustomerCode();
+                break;
+            }
+            case 8: {
+                findAllBillByBillCode();
                 break;
             }
             default:
