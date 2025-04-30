@@ -71,7 +71,9 @@ void writeFile(int type) {
     if (productType == type) {
         ofstream basicOfStream(R"(E:\CLionProjects\IT05-BTL\product.txt)");
         for (int i = 0; i < productList.size(); i++) {
-            basicOfStream << productList[i].productCode << "|" << productList[i].productName << "|"
+            basicOfStream << productList[i].productCode << "|"
+                          << productList[i].productName << "|"
+                          << productList[i].productQuantity << "|"
                           << productList[i].productPrice << endl;
         }
         basicOfStream.close();
@@ -80,7 +82,8 @@ void writeFile(int type) {
     if (customerType == type) {
         ofstream basicOfStream(R"(E:\CLionProjects\IT05-BTL\customer.txt)");
         for (int i = 0; i < customerList.size(); i++) {
-            basicOfStream << customerList[i].customerCode << "|" << customerList[i].customerName << "|"
+            basicOfStream << customerList[i].customerCode << "|"
+                          << customerList[i].customerName << "|"
                           << customerList[i].phone << endl;
         }
         basicOfStream.close();
@@ -89,50 +92,78 @@ void writeFile(int type) {
     if (billType == type) {
         ofstream basicOfStream(R"(E:\CLionProjects\IT05-BTL\bill.txt)");
         for (int i = 0; i < productList.size(); i++) {
-            basicOfStream << billList[i].billCode << "|" << billList[i].customerCode << "|"
-                          << billList[i].totalProduct << "|" << billList[i].totalPrice << endl;
+            basicOfStream << billList[i].billCode << "|"
+                          << billList[i].customerCode << "|"
+                          << billList[i].totalProduct << "|"
+                          << billList[i].totalPrice << endl;
         }
         basicOfStream.close();
     }
 }
 
-void readFile(const string &partFile, int type) {
-    ifstream fin(partFile);
+void readFile(const string &filename, int type) {
+    ifstream file(filename);
     int productType = 1;
     int customerType = 2;
     int billType = 3;
+    string line;
     if (productType == type) {
-        Product product;
-        productList.clear();
-        while (getline(fin, product.productCode, '|')) {
-            getline(fin, product.productName, '|');
-            fin >> product.productPrice;
-            fin.ignore();
-            productList.push_back(product);
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string idStr, code, name, qtyStr, priceStr;
+            if (getline(ss, code, '|') &&
+                getline(ss, name, '|') &&
+                getline(ss, qtyStr, '|') &&
+                getline(ss, priceStr)) {
+                int qty = stoi(qtyStr);
+                int price = stoi(priceStr);
+                Product product;
+                product.id = (long) productList.size() + 1;
+                product.productCode = code;
+                product.productName = name;
+                product.productQuantity = qty;
+                product.productPrice = price;
+                productList.push_back(product);
+            }
         }
-        fin.close();
     }
     if (customerType == type) {
-        Customer customer;
-        while (getline(fin, customer.customerCode, '|')) {
-            getline(fin, customer.customerName, '|');
-            fin >> customer.phone;
-            fin.ignore();
-            customerList.push_back(customer);
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string idStr, code, name, phone;
+            if (getline(ss, code, '|') &&
+                getline(ss, name, '|') &&
+                getline(ss, phone, '|')) {
+                Customer customer;
+                customer.id = (long) customerList.size() + 1;
+                customer.customerCode = code;
+                customer.customerName = name;
+                customer.phone = phone;
+                customerList.push_back(customer);
+            }
         }
-        fin.close();
     }
     if (billType == type) {
-        Bill bill;
-        while (getline(fin, bill.billCode, '|')) {
-            getline(fin, bill.customerCode, '|');
-            fin >> bill.totalProduct;
-            fin >> bill.totalPrice;
-            fin.ignore();
-            billList.push_back(bill);
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string idStr, billCode, customerCode, totalProductStr, totalPriceStr;
+            if (getline(ss, billCode, '|') &&
+                getline(ss, customerCode, '|') &&
+                getline(ss, totalProductStr, '|') &&
+                getline(ss, totalPriceStr)) {
+                int totalProduct = stoi(totalProductStr);
+                int totalPrice = stoi(totalPriceStr);
+                Bill bill;
+                bill.id = (long) productList.size() + 1;
+                bill.billCode = billCode;
+                bill.customerCode = customerCode;
+                bill.totalProduct = totalProduct;
+                bill.totalPrice = totalPrice;
+                billList.push_back(bill);
+            }
         }
-        fin.close();
     }
+    file.close();
 }
 
 void createProduct() {
@@ -616,7 +647,6 @@ void findMinPriceProduct() {
     auto minSP = min_element(productList.begin(), productList.end(),
                              [](Product a, Product b) { return a.productPrice < b.productPrice; });
     cout << "Min Price All Product: " << minSP->productPrice << endl;
-
 }
 
 void totalPriceAllProduct() {
